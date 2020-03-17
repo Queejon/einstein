@@ -2,7 +2,7 @@ const Discord = require('discord.js');
 const client = new Discord.Client();
 const fs = require('graceful-fs');
 
-const config = JSON.parse(fs.readFileSync('./config.json'));
+const config = JSON.parse(fs.readFileSync('ref/config.json'));
 client.login(config.login);
 
 client.on('ready', () => {
