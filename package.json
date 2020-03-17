@@ -1,0 +1,25 @@
+{
+  "name": "einstein",
+  "version": "1.0.0",
+  "description": "A helpful admin bot for the PISD Discord server.",
+  "main": "index.js",
+  "scripts": {
+    "test": "node bot.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Queejon/einstein.git"
+  },
+  "keywords": [
+    "learn",
+    "admin",
+    "discord",
+    "bot"
+  ],
+  "author": "Queejon",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Queejon/einstein/issues"
+  },
+  "homepage": "https://github.com/Queejon/einstein#readme"
+}
