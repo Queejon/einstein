@@ -21,5 +21,9 @@
   "bugs": {
     "url": "https://github.com/Queejon/einstein/issues"
   },
-  "homepage": "https://github.com/Queejon/einstein#readme"
+  "homepage": "https://github.com/Queejon/einstein#readme",
+  "dependencies": {
+    "discord.js": "^12.0.2",
+    "graceful-fs": "^4.2.3"
+  }
 }
