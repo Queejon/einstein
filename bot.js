@@ -25,26 +25,46 @@ client.on('message', (msg) => {
 
 client.on('messageDelete', (msg) => {
     const channel = msg.guild.channels.cache.get(config.logging_channel);
-    if(!loggingChannelBlacklist(msg)) return;
+    if(loggingChannelBlacklist(msg)) return;
+    if(loggingUserBlacklist(msg)) return;
     channel.send(`**DELETED:**
-    Message by \`${msg.author.username}#${msg.author.discriminator}\` in <#${msg.channel.id}>:
-    \`${msg.content}\`
+    *Author:* \`${msg.author.username}#${msg.author.discriminator}\` 
+    *Channel:* <#${msg.channel.id}> 
+    *Creation Timestamp:* \`${new Date(msg.createdTimestamp).toLocaleString()} ${((new Date()).toString().split('(')[1] || "").slice(0, -1)}\`
+    *Message:*
+    
+    /------------------------------------/
+    ${msg.content}
+    /------------------------------------/
     `);
 });
 
 client.on('messageUpdate', (msg) => {
     const channel = msg.guild.channels.cache.get(config.logging_channel);
-    if(!loggingChannelBlacklist(msg)) return;
+    if(loggingChannelBlacklist(msg)) return;
+    if(loggingUserBlacklist(msg)) return;
     channel.send(`**EDITED:**
     Message by \`${msg.author.username}#${msg.author.discriminator}\` in <#${msg.channel.id}>:
-    was: \`${msg.content}\`
-    now: \`${msg.channel.messages.cache.get(msg.id).content}\`
+    
+    
+    *Was:* 
+    
+    /------------------------------------/
+    ${msg.content}
+    /------------------------------------/
+    
+    
+    *Now:* 
+    
+    /------------------------------------/
+    ${msg.channel.messages.cache.get(msg.id).content}
+    /------------------------------------/
     `)
 });
 
 function loggingChannelBlacklist(msg){
     for(let k = 0; k < config.logging_channel_blacklist.length; k++){
-        if(msg.channel.id == config.logging_blacklist[k])
+        if(msg.channel.id == config.logging_channel_blacklist[k])
             return true;
     }
     return false;
@@ -52,7 +72,7 @@ function loggingChannelBlacklist(msg){
 
 function loggingUserBlacklist(msg){
     for(let k = 0; k < config.logging_user_blacklist.length; k++){
-        if(msg.channel.id == config.logging_blacklist[k])
+        if(msg.author.id == config.logging_user_blacklist[k])
             return true;
     }
     return false;
