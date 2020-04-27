@@ -16,7 +16,7 @@ client.on('guildMemberAdd', (mem) => {
     For any further help please contact Jonah.
     `);
     mem.roles.add('702297377436074047');
-    const logging_channel = msg.guild.channels.cache.get(config.logging_channel);
+    const logging_channel = mem.guild.channels.cache.get(config.logging_channel);
     channel.send(`
     **JOINED:**
         *User:* \`${mem.user.id}\`
