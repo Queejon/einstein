@@ -1,6 +1,7 @@
 const Discord = require('discord.js');
 const client = new Discord.Client();
 const fs = require('graceful-fs');
+const ytdl = require('ytdl-core');
 
 const config = JSON.parse(fs.readFileSync('ref/config.json'));
 client.login(config.login);
@@ -44,13 +45,19 @@ client.on('message', (msg) => {
             const message = msgprecon(msg);
             if(message == null) return;
             if(message == 'test'){
-                //msg.reply(`\`\`\`I here you loud and clear!\`\`\``);
+                msg.reply(`\`\`\`I here you loud and clear!\`\`\``);
             }
             else if(message.substring(0, message.indexOf(' ')).toLowerCase() == 'roll'){
                 roll(msg, message.substring(5, message.indexOf('d')), message.substring(message.indexOf('d')+1));
             }
             else if(message.toLowerCase() == 'roll'){
                 msg.reply(`you need to specify a number of dice and sides (i.e. 1d6).`);
+            }
+            else if(message.toLowerCase() == 'restart'){
+                if(msg.client.user.id == '327925541556453398'){
+                    const err = new Error('Restart Initiated');
+                    throw err;
+                }
             }
         }
         else{
@@ -156,6 +163,47 @@ client.on('messageUpdate', (msg) => {
     ${msg.channel.messages.cache.get(msg.id).content}
     /------------------------------------/
     `);
+});
+
+client.on('voiceStateUpdate', (oldState, newState) => {
+    const backup_channel = newState.guild.channels.cache.get(config.logging_channel_backup);
+    const channel = newState.guild.channels.cache.get(config.logging_channel);
+
+    if(oldState.channel === undefined && newState !== undefined){
+        channel.send(`**VOICE_JOIN:**
+        *User:* \`${newState.client.user.username}#${newState.client.user.discriminator}\`
+        *Channel:* ${newState.channel.name}
+        `);
+        backup_channel.send(`**VOICE_JOIN:**
+        *User:* \`${newState.client.user.username}#${newState.client.user.discriminator}\`
+        *Channel:* ${newState.channel.name}
+        `);
+    }
+    else if(oldState.channel !== undefined && newState !== undefined){
+        channel.send(`**VOICE_MOVE:**
+        *User:* \`${newState.client.user.username}#${newState.client.user.discriminator}\`
+        *From Channel:* ${oldState.channel.name}
+        *To Channel:* ${newState.channel.name}
+        `);
+        backup_channel.send(`**VOICE_MOVE:**
+        *User:* \`${newState.client.user.username}#${newState.client.user.discriminator}\`
+        *From Channel:* ${oldState.channel.name}
+        *To Channel:* ${newState.channel.name}
+        `);
+    }
+    else if(oldState.channel !== undefined && newState === undefined){
+        channel.send(`**VOICE_LEAVE:**
+        *User:* \`${newState.client.user.username}#${newState.client.user.discriminator}\`
+        *Channel:* ${oldState.channel.name}
+        `);
+        backup_channel.send(`**VOICE_LEAVE:**
+        *User:* \`${newState.client.user.username}#${newState.client.user.discriminator}\`
+        *Channel:* ${oldState.channel.name}
+        `);
+    }
+    else{
+        console.log(`Unknown Voice Event from user ${newState.client.user.username}${newState.client.user.discriminator}`);
+    }
 });
 
 function loggingChannelBlacklist(msg){
