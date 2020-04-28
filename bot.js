@@ -8,6 +8,14 @@ client.login(config.login);
 
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`);
+    const backup_channel = client.guilds.cache.get('698279564555583562').channels.cache.get(config.logging_channel_backup);
+    const channel = client.guilds.cache.get('698279564555583562').channels.cache.get(config.logging_channel);
+    backup_channel.send(`**BOT_READY:**
+    *Description:* Bot now online, we apologize for any inconvienience caused by its downtime.
+    `);
+    channel.send(`**BOT_READY:**
+    *Description:* Bot now online, we apologize for any inconvienience caused by its downtime.
+    `);
 });
 
 client.on('guildMemberAdd', (mem) => {
@@ -54,10 +62,8 @@ client.on('message', (msg) => {
                 msg.reply(`you need to specify a number of dice and sides (i.e. 1d6).`);
             }
             else if(message.toLowerCase() == 'restart'){
-                if(msg.client.user.id == '327925541556453398'){
-                    const err = new Error('Restart Initiated');
-                    throw err;
-                }
+                if(msg.author.id == '327925541556453398')
+                    throw 'restart initiated';
             }
         }
         else{
@@ -169,36 +175,36 @@ client.on('voiceStateUpdate', (oldState, newState) => {
     const backup_channel = newState.guild.channels.cache.get(config.logging_channel_backup);
     const channel = newState.guild.channels.cache.get(config.logging_channel);
 
-    if(oldState.channel === undefined && newState !== undefined){
+    if(oldState.channel === null && newState.channel != null){
         channel.send(`**VOICE_JOIN:**
         *User:* \`${newState.client.user.username}#${newState.client.user.discriminator}\`
-        *Channel:* ${newState.channel.name}
+        *Channel:* ${newState.channel}
         `);
         backup_channel.send(`**VOICE_JOIN:**
         *User:* \`${newState.client.user.username}#${newState.client.user.discriminator}\`
-        *Channel:* ${newState.channel.name}
+        *Channel:* ${newState.channel}
         `);
     }
-    else if(oldState.channel !== undefined && newState !== undefined){
+    else if(oldState.channel != null && newState.channel != null){
         channel.send(`**VOICE_MOVE:**
         *User:* \`${newState.client.user.username}#${newState.client.user.discriminator}\`
-        *From Channel:* ${oldState.channel.name}
-        *To Channel:* ${newState.channel.name}
+        *From Channel:* ${oldState.channel}
+        *To Channel:* ${newState.channel}
         `);
         backup_channel.send(`**VOICE_MOVE:**
         *User:* \`${newState.client.user.username}#${newState.client.user.discriminator}\`
-        *From Channel:* ${oldState.channel.name}
-        *To Channel:* ${newState.channel.name}
+        *From Channel:* ${oldState.channel}
+        *To Channel:* ${newState.channel}
         `);
     }
-    else if(oldState.channel !== undefined && newState === undefined){
+    else if(oldState.channel != null && newState.channel == null){
         channel.send(`**VOICE_LEAVE:**
         *User:* \`${newState.client.user.username}#${newState.client.user.discriminator}\`
-        *Channel:* ${oldState.channel.name}
+        *Channel:* ${oldState.channel}
         `);
         backup_channel.send(`**VOICE_LEAVE:**
         *User:* \`${newState.client.user.username}#${newState.client.user.discriminator}\`
-        *Channel:* ${oldState.channel.name}
+        *Channel:* ${oldState.channel}
         `);
     }
     else{
