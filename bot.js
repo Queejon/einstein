@@ -55,12 +55,44 @@ client.on('message', (msg) => {
             if(message == 'test'){
                 msg.reply(`\`\`\`I here you loud and clear!\`\`\``);
             }
+            //Dice Roll
             else if(message.substring(0, message.indexOf(' ')).toLowerCase() == 'roll'){
                 roll(msg, message.substring(5, message.indexOf('d')), message.substring(message.indexOf('d')+1));
             }
             else if(message.toLowerCase() == 'roll'){
                 msg.reply(`you need to specify a number of dice and sides (i.e. 1d6).`);
             }
+            //Coin Flip
+            else if(message.toLowerCase() == 'flip' || message.substring(0, message.indexOf(' ')).toLowerCase() == 'flip' ){
+                coin(msg);
+            }
+            else if(message.toLowerCase() == 'coinflip' || message.substring(0, message.indexOf(' ')).toLowerCase() == 'coinflip'){
+                coin(msg);
+            }
+            else if(message.toLowerCase() == 'flipcoin' || message.substring(0, message.indexOf(' ')).toLowerCase() == 'flipcoin'){
+                coin(msg);
+            }
+            else if(message.toLowerCase() == 'help'){
+                msg.reply(`
+                **--HELP--**
+                *-roll*: specify a number of dice, d, number of sides (i.e. 1d20)
+                *-flip/coinflip/flipcoin*: heads or tails
+                *-help*: here you are
+                *-about*: a small blurb about this me (this bot)
+                *-restart*: A command only usable by certain users which restarts the bot
+                `);
+            }
+            else if(message.toLowerCase() == 'about' || message.substring(0, message.indexOf(' ').toLowerCase() == 'about')){
+                msg.reply(`
+                **--ABOUT--**
+                -I am a simple moderation bot meant to aid in the monitoring and running of small Discord servers.
+                -I was created by Jonah McConnell over the past few weeks, over the course of around 4 hours.
+                -I log all events in the server such as edited messages, and new users. This is to ensure no false accusations make it far and to keep the server a safe place.
+                -If you have any questions, please feel free to reach out to Jonah and ask him. He's usually not *too* busy (don't tell him I said that though).
+                -For a list of commands and their basic usage, please use my help command.
+                `);
+            }
+            //Restart
             else if(message.toLowerCase() == 'restart'){
                 if(msg.author.id == '327925541556453398')
                     throw 'restart initiated';
@@ -177,38 +209,38 @@ client.on('voiceStateUpdate', (oldState, newState) => {
 
     if(oldState.channel === null && newState.channel != null){
         channel.send(`**VOICE_JOIN:**
-        *User:* \`${newState.client.user.username}#${newState.client.user.discriminator}\`
+        *User:* \`${newState.member.user.username}#${newState.member.user.discriminator}\`
         *Channel:* ${newState.channel}
         `);
         backup_channel.send(`**VOICE_JOIN:**
-        *User:* \`${newState.client.user.username}#${newState.client.user.discriminator}\`
+        *User:* \`${newState.member.user.username}#${newState.member.user.discriminator}\`
         *Channel:* ${newState.channel}
         `);
     }
     else if(oldState.channel != null && newState.channel != null){
         channel.send(`**VOICE_MOVE:**
-        *User:* \`${newState.client.user.username}#${newState.client.user.discriminator}\`
+        *User:* \`${newState.member.user.username}#${newState.member.user.discriminator}\`
         *From Channel:* ${oldState.channel}
         *To Channel:* ${newState.channel}
         `);
         backup_channel.send(`**VOICE_MOVE:**
-        *User:* \`${newState.client.user.username}#${newState.client.user.discriminator}\`
+        *User:* \`${newState.member.user.username}#${newState.member.user.discriminator}\`
         *From Channel:* ${oldState.channel}
         *To Channel:* ${newState.channel}
         `);
     }
     else if(oldState.channel != null && newState.channel == null){
         channel.send(`**VOICE_LEAVE:**
-        *User:* \`${newState.client.user.username}#${newState.client.user.discriminator}\`
+        *User:* \`${newState.member.user.username}#${newState.member.user.discriminator}\`
         *Channel:* ${oldState.channel}
         `);
         backup_channel.send(`**VOICE_LEAVE:**
-        *User:* \`${newState.client.user.username}#${newState.client.user.discriminator}\`
+        *User:* \`${newState.member.user.username}#${newState.member.user.discriminator}\`
         *Channel:* ${oldState.channel}
         `);
     }
     else{
-        console.log(`Unknown Voice Event from user ${newState.client.user.username}${newState.client.user.discriminator}`);
+        console.log(`Unknown Voice Event from user ${newState.member.user.username}${newState.member.user.discriminator}`);
     }
 });
 
@@ -277,6 +309,13 @@ function roll(msg, numofdice, numofsides){
     }
     //console.log(result);
     msg.channel.send(result.toString());
+}
+
+function coin(msg){
+    if(randomnum(1,2) == 1)
+        msg.reply(`Tails!`);
+    else
+        msg.reply(`Heads!`);
 }
 
 function randomnum(min, max){
