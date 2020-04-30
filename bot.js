@@ -3,30 +3,35 @@ const client = new Discord.Client();
 const fs = require('graceful-fs');
 const ytdl = require('ytdl-core');
 
-const config = JSON.parse(fs.readFileSync('ref/config.json'));
+let config = JSON.parse(fs.readFileSync('ref/config.json'));
 client.login(config.login);
 
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`);
-    const backup_channel = client.guilds.cache.get('698279564555583562').channels.cache.get(config.logging_channel_backup);
-    const channel = client.guilds.cache.get('698279564555583562').channels.cache.get(config.logging_channel);
-    backup_channel.send(`**BOT_READY:**
-    *Description:* Bot now online, we apologize for any inconvienience caused by its downtime.
-    `);
-    channel.send(`**BOT_READY:**
-    *Description:* Bot now online, we apologize for any inconvienience caused by its downtime.
-    `);
 });
 
 client.on('guildMemberAdd', (mem) => {
-    const channel = client.guilds.cache.get('698279564555583562').channels.cache.get('698279567885991979');
+    let config;
+    if(fs.existsSync(`ref/servers/${mem.guild.name}.json`))
+        config = JSON.parse(fs.readFileSync(`ref/servers/${mem.guild.name}.json`));
+    else{
+        fs.copyFileSync(`ref/config.json`, `ref/servers/${mem.guild.name}.json`);
+        config = JSON.parse(fs.readFileSync(`ref/servers/${mem.guild.name}.json`));
+    }
+    const channel = client.guilds.cache.get(mem.guild.id).channels.cache.find((channel) => channel.name === config.welcome_channel);
     channel.send(`
     Welcome <@${mem.user.id}>! Please tap/click on this --> <#698280079733555230> <-- for help on using Discord and the servers rules.
     For any further help please contact Jonah.
     `);
-    mem.roles.add('702297377436074047');
-    const logging_channel = mem.guild.channels.cache.get(config.logging_channel);
-    channel.send(`
+
+    const logging_channel = mem.guild.channels.cache.find((channel) => channel.name === config.logging_channel);
+    const logging_channel_backup = mem.guild.channels.cache.find((channel) => channel.name === config.logging_channel_backup);
+    logging_channel.send(`
+    **JOINED:**
+        *User:* \`${mem.user.id}\`
+        *Account Age:* \`${new Date(mem.user.createdTimestamp).toLocaleString()} ${((new Date()).toString().split('(')[1] || "").slice(0, -1)}\`
+    `);
+    logging_channel_backup.send(`
     **JOINED:**
         *User:* \`${mem.user.id}\`
         *Account Age:* \`${new Date(mem.user.createdTimestamp).toLocaleString()} ${((new Date()).toString().split('(')[1] || "").slice(0, -1)}\`
@@ -34,13 +39,26 @@ client.on('guildMemberAdd', (mem) => {
 });
 
 client.on('guildMemberRemove', (mem) => {
-    const channel = client.guilds.cache.get('698279564555583562').channels.cache.get('698279567885991979');
+    let config;
+    if(fs.existsSync(`ref/servers/${mem.guild.name}.json`))
+        config = JSON.parse(fs.readFileSync(`ref/servers/${mem.guild.name}.json`));
+    else{
+        fs.copyFileSync(`ref/config.json`, `ref/servers/${mem.guild.name}.json`);
+        config = JSON.parse(fs.readFileSync(`ref/servers/${mem.guild.name}.json`));
+    }
+    const channel = client.guilds.cache.get(mem.guild.id).channels.cache.find((channel) => channel.name === config.welcome_channel);
     channel.send(`
     Goodbye <@${mem.user.id}>!
     `);
 
-    const logging_channel = msg.guild.channels.cache.get(config.logging_channel);
-    channel.send(`
+    const logging_channel = mem.guild.channels.cache.find((channel) => channel.name === config.logging_channel);
+    const logging_channel_backup = mem.guild.channels.cache.find((channel) => channel.name === config.logging_channel_backup);
+    logging_channel.send(`
+    **LEFT:**
+        *User:* \`${mem.user.id}\`
+        *Account Age:* \`${new Date(mem.user.createdTimestamp).toLocaleString()} ${((new Date()).toString().split('(')[1] || "").slice(0, -1)}\`
+    `);
+    logging_channel_backup(`
     **LEFT:**
         *User:* \`${mem.user.id}\`
         *Account Age:* \`${new Date(mem.user.createdTimestamp).toLocaleString()} ${((new Date()).toString().split('(')[1] || "").slice(0, -1)}\`
@@ -106,7 +124,14 @@ client.on('message', (msg) => {
 });
 
 client.on('messageDelete', (msg) => {
-    const backup_channel = msg.guild.channels.cache.get(config.logging_channel_backup);
+    let config;
+    if(fs.existsSync(`ref/servers/${msg.guild.name}.json`))
+        config = JSON.parse(fs.readFileSync(`ref/servers/${msg.guild.name}.json`));
+    else{
+        fs.copyFileSync(`ref/config.json`, `ref/servers/${msg.guild.name}.json`);
+        config = JSON.parse(fs.readFileSync(`ref/servers/${msg.guild.name}.json`));
+    }
+    const backup_channel = msg.guild.channels.cache.find((channel) => channel.name === config.logging_channel_backup);
     if(!languageFilter(msg)){
         backup_channel.send(`**DELETED:**
         *Author:* \`${msg.author.username}#${msg.author.discriminator}\` 
@@ -119,7 +144,7 @@ client.on('messageDelete', (msg) => {
         /------------------------------------/
         `);
 
-        const channel = msg.guild.channels.cache.get(config.logging_channel);
+        const channel = msg.guild.channels.cache.find((channel) => channel.name === config.logging_channel);
         if(loggingChannelBlacklist(msg)) return;
         if(loggingUserBlacklist(msg)) return;
         channel.send(`**DELETED:**
@@ -145,7 +170,7 @@ client.on('messageDelete', (msg) => {
         /------------------------------------/
         `);
 
-        const channel = msg.guild.channels.cache.get(config.logging_channel);
+        const channel = msg.guild.channels.cache.find((channel) => channel.name === config.logging_channel);
         if(loggingChannelBlacklist(msg)) return;
         if(loggingUserBlacklist(msg)) return;
         channel.send(`**REMOVED(FOUL_LANGUAGE):**
@@ -162,7 +187,14 @@ client.on('messageDelete', (msg) => {
 });
 
 client.on('messageUpdate', (msg) => {
-    const backup_channel = msg.guild.channels.cache.get(config.logging_channel_backup);
+    let config;
+    if(fs.existsSync(`ref/servers/${msg.guild.name}.json`))
+        config = JSON.parse(fs.readFileSync(`ref/servers/${msg.guild.name}.json`));
+    else{
+        fs.copyFileSync(`ref/config.json`, `ref/servers/${msg.guild.name}.json`);
+        config = JSON.parse(fs.readFileSync(`ref/servers/${msg.guild.name}.json`));
+    }
+    const backup_channel = msg.guild.channels.cache.find((channel) => channel.name === config.logging_channel_backup);
     backup_channel.send(`**EDITED:**
     Message by \`${msg.author.username}#${msg.author.discriminator}\` in <#${msg.channel.id}>:
     
@@ -181,7 +213,7 @@ client.on('messageUpdate', (msg) => {
     /------------------------------------/
     `);
 
-    const channel = msg.guild.channels.cache.get(config.logging_channel);
+    const channel = msg.guild.channels.cache.find((channel) => channel.name === config.logging_channel);
     if(loggingChannelBlacklist(msg)) return;
     if(loggingUserBlacklist(msg)) return;
     channel.send(`**EDITED:**
@@ -204,8 +236,15 @@ client.on('messageUpdate', (msg) => {
 });
 
 client.on('voiceStateUpdate', (oldState, newState) => {
-    const backup_channel = newState.guild.channels.cache.get(config.logging_channel_backup);
-    const channel = newState.guild.channels.cache.get(config.logging_channel);
+    let config;
+    if(fs.existsSync(`ref/servers/${newState.guild.name}.json`))
+        config = JSON.parse(fs.readFileSync(`ref/servers/${newState.guild.name}.json`));
+    else{
+        fs.copyFileSync(`ref/config.json`, `ref/servers/${newState.guild.name}.json`);
+        config = JSON.parse(fs.readFileSync(`ref/servers/${newState.guild.name}.json`));
+    }
+    const backup_channel = newState.guild.channels.cache.find((channel) => channel.name === config.logging_channel_backup);
+    const channel = newState.guild.channels.cache.find((channel) => channel.name === config.logging_channel);
 
     if(oldState.channel === null && newState.channel != null){
         channel.send(`**VOICE_JOIN:**

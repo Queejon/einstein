@@ -1,0 +1,11 @@
+{
+    "login": "Njg5NTUzNjE1MDY4NTk0Mjc3.XnFQtw.ZGxhOlYW6HkODQ1EVHIpkTvbvaM",
+    "prefix": "$",
+    "logging_channel": "log",
+    "logging_channel_backup": "log-backup",
+    "logging_channel_blacklist": ["log"],
+    "logging_user_blacklist": [],
+    "banned_words": ["fuck", "shit", "damn", "cunt", "ass", "bitch", "whore"],
+    "official_role": "Official",
+    "welcome_channel": "welcome"
+}
